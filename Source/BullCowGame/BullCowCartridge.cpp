@@ -10,37 +10,22 @@ void UBullCowCartridge::BeginPlay() // When the game starts
     //PrintLine(FString::Printf(TEXT("The HiddenWord is %s"), *HiddenWord));
     // PrintLine already uses Printf, so we don't need to do it
     PrintLine(TEXT("The HiddenWord is %s."), *HiddenWord); 
-
-    // Welcoming the player
-    PrintLine(TEXT("Welcome to Bull Cows game!"));
-    PrintLine(FString::Printf(TEXT("Guess the %i letter word"), HiddenWord.Len()));
-    
-    // Prompt Player for guess
-    PrintLine(TEXT("Type in your guess, press enter to submit!"));
 }
 
 void UBullCowCartridge::OnInput(const FString& Input) // When the player hits enter
 {
-    ClearScreen();
 
-   
-    // Checking player for guess
-    if (HiddenWord.ToLower() == Input.ToLower())
+    if (bGameOver)
     {
-        PrintLine(TEXT("You got it right mate!"));
+        ClearScreen();
+        SetupGame();
     }
-    else
+    else // Checking player guess
     {
-		if (HiddenWord.Len() != Input.Len())
-		{
-            PrintLine(TEXT("The Hidden Word is %i characters long, try again!"), HiddenWord.Len());
-		}
-        else
-        {
-			// Add remaining lives to the text
-			PrintLine(TEXT("You lost, try again champ!"));
-        }
+        ProcessGuess(Input);
     }
+
+    
     // Check if Isogram
     // Prompt to Guess Again
     // Check Right Number of Char
@@ -59,6 +44,45 @@ void UBullCowCartridge::OnInput(const FString& Input) // When the player hits en
 
 void UBullCowCartridge::SetupGame()
 {
-	HiddenWord = TEXT("cake");
+    // Welcoming the player
+    PrintLine(TEXT("Welcome to Bull Cows game!"));
+    HiddenWord = TEXT("cake");
     Lives = HiddenWord.Len();
+    bGameOver = false;
+    PrintLine(FString::Printf(TEXT("Guess the %i letter word"), HiddenWord.Len()));
+    PrintLine(TEXT("You have %i lives!"), Lives);
+
+    // Prompt Player for guess
+    PrintLine(TEXT("Type in your guess and \nPress enter to submit!"));
+}
+
+void UBullCowCartridge::EndGame()
+{
+    bGameOver = true;
+    PrintLine(TEXT("Press enter to play again."));
+}
+
+void UBullCowCartridge::ProcessGuess(FString Guess)
+{
+	if (HiddenWord.ToLower() == Guess.ToLower())
+	{
+		PrintLine(TEXT("You got it right mate!"));
+		EndGame();
+	}
+	else
+	{
+		PrintLine(TEXT("You lost a life! You now have %i lives!"), --Lives);
+		if (Lives > 0)
+		{
+			if (HiddenWord.Len() != Guess.Len())
+			{
+				PrintLine(TEXT("Sorry, try guessing again!\n You have %i Lives remaining"), Lives);
+			}
+		}
+		else
+		{
+			PrintLine(TEXT("You have lost!"));
+			EndGame();
+		}
+	}
 }
