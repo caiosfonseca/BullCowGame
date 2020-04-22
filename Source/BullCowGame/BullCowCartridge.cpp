@@ -24,22 +24,6 @@ void UBullCowCartridge::OnInput(const FString& Input) // When the player hits en
     {
         ProcessGuess(Input);
     }
-
-    
-    // Check if Isogram
-    // Prompt to Guess Again
-    // Check Right Number of Char
-    // Prompt to Guess Again
-
-    // Remove Life
-    
-    // Check if Lives > 0
-    // If Yes GuessAgain
-    // Show Lives Left
-    // If No Show Game Over And HiddenWord?
-    // Prompt to Play Again, Press Enter to Play Again?
-    // Check User input
-    // PlayAgain or Quit
 }
 
 void UBullCowCartridge::SetupGame()
@@ -59,7 +43,7 @@ void UBullCowCartridge::SetupGame()
 void UBullCowCartridge::EndGame()
 {
     bGameOver = true;
-    PrintLine(TEXT("Press enter to play again."));
+    PrintLine(TEXT("\nPress enter to play again."));
 }
 
 void UBullCowCartridge::ProcessGuess(FString Guess)
@@ -68,21 +52,67 @@ void UBullCowCartridge::ProcessGuess(FString Guess)
 	{
 		PrintLine(TEXT("You got it right mate!"));
 		EndGame();
+        return;
 	}
-	else
+
+	if (HiddenWord.Len() != Guess.Len())
 	{
-		PrintLine(TEXT("You lost a life! You now have %i lives!"), --Lives);
-		if (Lives > 0)
+		PrintLine(TEXT("The hidden word is %i letters long"), HiddenWord.Len());
+		PrintLine(TEXT("Sorry, try guessing again!\n You have %i Lives remaining"), Lives);
+		return;
+	}
+
+	// Check if Isogram
+	if (!IsIsogram(Guess))
+	{
+		PrintLine(TEXT("No repeating letter, guess again!"));
+		return;
+	}
+
+	//Remove a life
+	PrintLine(TEXT("You lost a life!"));
+	--Lives;
+
+	if (Lives <= 0)
+	{
+		ClearScreen();
+		PrintLine(TEXT("You have lost!"));
+		PrintLine(TEXT("The word was %s"), *HiddenWord);
+		EndGame();
+		return;
+	}
+
+	//Show the player bulls and cows
+	PrintLine(TEXT("Guess again, you have %i lives left"), Lives);
+	// If Yes GuessAgain
+	// Show Lives Left
+	// If No Show Game Over And HiddenWord?
+	// Prompt to Play Again, Press Enter to Play Again?
+	// Check User input
+	// PlayAgain or Quit
+
+	
+	
+}
+
+bool UBullCowCartridge::IsIsogram(FString Word)
+{
+	int count;
+	for (TCHAR tempi : Word)
+	{
+		count = 0;
+		for (TCHAR tempj : Word)
 		{
-			if (HiddenWord.Len() != Guess.Len())
+			if (tempi == tempj)
 			{
-				PrintLine(TEXT("Sorry, try guessing again!\n You have %i Lives remaining"), Lives);
+				++count;
+				if (count > 1)
+				{
+					return false;
+				}
 			}
 		}
-		else
-		{
-			PrintLine(TEXT("You have lost!"));
-			EndGame();
-		}
 	}
+	return true;
 }
+		
