@@ -95,21 +95,15 @@ void UBullCowCartridge::ProcessGuess(FString Guess)
 	
 }
 
-bool UBullCowCartridge::IsIsogram(FString Word)
+bool UBullCowCartridge::IsIsogram(FString Word) const
 {
-	int count;
-	for (TCHAR tempi : Word)
+	for (int32 i = 0; i < Word.Len()-1; ++i)
 	{
-		count = 0;
-		for (TCHAR tempj : Word)
+		for (int32 j = i+1; j < Word.Len(); ++j)
 		{
-			if (tempi == tempj)
+			if(Word[i] == Word[j])
 			{
-				++count;
-				if (count > 1)
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 	}
