@@ -1,15 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "BullCowCartridge.h"
+#include "HiddenWordList.h"
 
 void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
 
+	TArray<FString> ValidWords = GetValidWords(Words);
+
     SetupGame();
 
-    //PrintLine(FString::Printf(TEXT("The HiddenWord is %s"), *HiddenWord));
-    // PrintLine already uses Printf, so we don't need to do it
-    PrintLine(TEXT("The HiddenWord is %s."), *HiddenWord); 
+	PrintLine(TEXT("The number of possible words is %i."), Words.Num());
+	PrintLine(TEXT("The number of valid words is: %i."), ValidWords.Num());
+    PrintLine(TEXT("The HiddenWord is %s."), *HiddenWord);// Debug line
 }
 
 void UBullCowCartridge::OnInput(const FString& Input) // When the player hits enter
@@ -30,7 +33,7 @@ void UBullCowCartridge::SetupGame()
 {
     // Welcoming the player
     PrintLine(TEXT("Welcome to Bull Cows game!"));
-    HiddenWord = TEXT("cake");
+    HiddenWord = Words[Words.Num()];
     Lives = HiddenWord.Len();
     bGameOver = false;
     PrintLine(FString::Printf(TEXT("Guess the %i letter word"), HiddenWord.Len()));
@@ -83,21 +86,12 @@ void UBullCowCartridge::ProcessGuess(FString Guess)
 	}
 
 	//Show the player bulls and cows
-	PrintLine(TEXT("Guess again, you have %i lives left"), Lives);
-	// If Yes GuessAgain
-	// Show Lives Left
-	// If No Show Game Over And HiddenWord?
-	// Prompt to Play Again, Press Enter to Play Again?
-	// Check User input
-	// PlayAgain or Quit
-
-	
-	
+	PrintLine(TEXT("Guess again, you have %i lives left"), Lives);	
 }
 
 bool UBullCowCartridge::IsIsogram(FString Word) const
 {
-	for (int32 i = 0; i < Word.Len()-1; ++i)
+	for (int32 i = 0; i < Word.Len(); ++i)
 	{
 		for (int32 j = i+1; j < Word.Len(); ++j)
 		{
@@ -108,5 +102,20 @@ bool UBullCowCartridge::IsIsogram(FString Word) const
 		}
 	}
 	return true;
+}
+
+TArray<FString> UBullCowCartridge::GetValidWords(TArray<FString> WordList) const
+{
+	TArray<FString> ValidWords;
+
+	for(FString Word : WordList)
+	{
+		if(Word.Len() >= 4 && Word.Len() <= 8 && IsIsogram(Word))
+		{
+			ValidWords.Emplace(Word);
+		}
+	}
+
+	return ValidWords;
 }
 		
